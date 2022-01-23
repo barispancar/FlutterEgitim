@@ -1,0 +1,211 @@
+// ignore_for_file: unnecessary_new
+
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Flutter Demo',
+      theme: new ThemeData(
+
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Hello World'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => new _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  var sinif = 5;
+  var baslik = 'Öğrenciler';
+  var ogrenciler = ['Ali', 'Ayse', 'Can'];
+
+  void yeniOgrenciEkle(String yeniOgrenci) {
+    setState(() {
+      ogrenciler = [...ogrenciler, yeniOgrenci];
+
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+
+    return new Scaffold(
+      appBar: new AppBar(
+
+        title: new Text(widget.title),
+      ),
+      body: new Center(
+        child: SinifBilgisi(
+          sinif: sinif,
+          baslik: baslik,
+          ogrenciler: ogrenciler,
+          yeniOgrenciEkle: yeniOgrenciEkle,
+          child: const Sinif(
+
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SinifBilgisi extends InheritedWidget {
+  const SinifBilgisi({
+    Key? key,
+    required Widget child,
+    required this.sinif,
+    required this.baslik,
+    required this.ogrenciler,
+    required this.yeniOgrenciEkle,
+  }) : super(key: key, child: child);
+
+  final int sinif;
+  final String baslik;
+  final List<String> ogrenciler;
+  final void Function(String yeniOgrneci) yeniOgrenciEkle;
+
+  static SinifBilgisi of(BuildContext context) {
+    final SinifBilgisi? result = context.dependOnInheritedWidgetOfExactType<SinifBilgisi>();
+    assert(result != null, 'No SinifBilgisi found in context');
+    return result!;
+  }
+
+  @override
+  bool updateShouldNotify(SinifBilgisi old) {
+    return sinif != old.sinif ||
+        baslik != old.baslik ||
+        ogrenciler != old.ogrenciler ||
+        yeniOgrenciEkle != old.yeniOgrenciEkle;
+  }
+}
+
+class Sinif extends StatelessWidget {
+  const Sinif({
+    Key? key,
+
+  }) : super(key: key);
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    final sinifBilgisi = SinifBilgisi.of(context);
+    return new Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.star,
+              size: 100,color: Colors.yellow,
+            ),
+            Text(
+              '$sinifBilgisi.Sınıf',
+              textScaleFactor: 2,
+            ),
+            const Icon(Icons.star, size: 100, color: Colors.red,),
+          ],
+        ),
+        Text(
+          sinifBilgisi.baslik,
+          textScaleFactor: 1.5,
+        ),
+
+        OgrenciListesi(),
+         OgrenciEkleme(),
+      ],
+    );
+  }
+}
+
+
+
+class OgrenciListesi extends StatelessWidget {
+  const OgrenciListesi({
+    Key? key,
+
+  }) : super(key: key);
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    final sinifBilgisi = SinifBilgisi.of(context);
+    return Column(
+      children: [
+        for (final o in sinifBilgisi.ogrenciler)
+      Text(o),
+    ],
+    );
+  }
+}
+
+class OgrenciEkleme extends StatefulWidget {
+  const OgrenciEkleme({
+    Key? key,
+  }) : super(key: key);
+
+
+
+  @override
+  State<OgrenciEkleme> createState() => _OgrenciEklemeState();
+}
+
+class _OgrenciEklemeState extends State<OgrenciEkleme> {
+
+
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+   controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sinifBilgisi = SinifBilgisi.of(context);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center ,
+      children: [
+        TextField(
+          controller: controller ,
+          onChanged: (value) {
+            setState(() {
+
+            });
+          },
+        ),
+        ElevatedButton(
+          onPressed: controller.text.isEmpty ? null : () {
+            final yeniOgrenci = controller.text;
+           sinifBilgisi.yeniOgrenciEkle(yeniOgrenci);
+            controller.text = '';
+
+          },
+          child: const Text(
+            'Ekle',
+          ),
+        ),
+      ],
+    );
+  }
+}
